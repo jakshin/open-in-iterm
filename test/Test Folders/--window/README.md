@@ -1,0 +1,1 @@
+A directory with an awkward name, for testing that shell command escaping is working correctly.
