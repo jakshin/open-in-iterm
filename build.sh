@@ -1,7 +1,7 @@
 #!/bin/bash -e
 # Builds the "Open In iTerm" Finder-toolbar script as an application.
 
-script_name="Open In iTerm.scpt"
+script_name="Open In iTerm.applescript"
 bundle_name="Open In iTerm.app"
 bundle_id="com.apple.ScriptEditor.id.OpenIniTerm"
 version="1.0"
@@ -31,10 +31,7 @@ cd -- "`dirname "$0"`"
 
 # remove any existing version of the app bundle, and create a new one
 rm -rf "$bundle_name"
-osacompile -o "$bundle_name" "$script_name"
-
-# fix the script (osacompile thinks it's AppleScript?)
-cp "$script_name" "$bundle_name/Contents/Resources/Scripts/main.scpt"
+osacompile -l JavaScript -o "$bundle_name" "$script_name"
 
 # copy resources into the bundle
 cp icon/app.icns "$bundle_name/Contents/Resources/applet.icns"
