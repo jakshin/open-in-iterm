@@ -76,7 +76,7 @@ function run() {
 
 	// clear iTerm's scrollback buffer
 	delay(0.2)
-	Application("System Events").keystroke("K", { using: ["command down", "shift down"] })
+	Application("System Events").keystroke("K", { using: [ "command down", "shift down" ] })
 }
 
 // ----- utility functions -----
