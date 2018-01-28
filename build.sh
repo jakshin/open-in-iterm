@@ -34,7 +34,7 @@ rm -rf "$bundle_name"
 osacompile -o "$bundle_name" "$script_name"
 
 # fix the script (osacompile thinks it's AppleScript?)
-cp "Open In iTerm.scpt" "$bundle_name/Contents/Resources/Scripts/main.scpt"
+cp "$script_name" "$bundle_name/Contents/Resources/Scripts/main.scpt"
 
 # copy resources into the bundle
 cp icon/app.icns "$bundle_name/Contents/Resources/applet.icns"
