@@ -1,0 +1,87 @@
+#!/bin/bash -e
+#
+# Opens iTerm tabs/windows conveniently, using "Open in iTerm.app".
+# Run with `--help` for usage info.
+#
+# Copyright (c) 2018 Jason Jackson
+#
+# Distributed under the GNU General Public License, version 3 or later;
+# see LICENSE or http://www.gnu.org/licenses/.
+#
+
+function usage() {
+	script_name=`basename "$0"`
+	with_header="$1"
+
+	if [[ $with_header == true ]]; then
+		echo -e "${header_color}Opens iTerm tabs/windows conveniently, using Open in iTerm.app${normal}"
+	fi
+
+	echo -e "${bold}Usage:${normal} ${script_name} [options] [directory]\n"
+	echo -e "${bold}Options${normal} may be given anywhere on the command line, except after ${bold}--${normal}:"
+	echo "  -h, --help    Show this help and exit"
+	echo "  -t, --tab     Open a new iTerm tab (not window)"
+	echo "  -w, --window  Open a new iTerm window (not tab)"
+	echo
+	echo -e "If ${bold}directory${normal} is passed, it sets the iTerm tab/window's working directory;"
+	echo "otherwise the current working directory will be used."
+}
+
+# output styles
+header_color='\033[1;36m'
+error_color='\033[0;31m'
+bold='\033[1m'
+normal='\033[0m'
+
+# parse arguments
+unset end_opts directory tabOrWindow
+
+for arg; do
+	if [[ $end_opts == true || $arg != -* ]]; then
+		if [[ -z $directory ]]; then
+			directory="$arg"
+		else
+			echo -e "${error_color}Error: Multiple directories given${normal}"
+			echo -e "${error_color}  1st: ${directory}\n  2nd: ${arg}${normal}\n"
+			usage
+			exit 1
+		fi
+	elif [[ $arg == "--" ]]; then
+		end_opts=true
+	elif [[ $arg == "-h" || $arg == "--help" ]]; then
+		usage true
+		exit 0
+	elif [[ $arg == "-t" || $arg == "--tab" ]]; then
+		tabOrWindow="$arg"
+	elif [[ $arg == "-w" || $arg == "--window" ]]; then
+		tabOrWindow="$arg"
+	else
+		echo -e "${error_color}Error: Invalid option: ${arg}${normal}"
+		usage
+		exit 1
+	fi
+done
+
+if [[ -z $directory ]]; then
+	# default to the current directory
+	directory=`pwd`
+else
+	if [[ ! -d $directory ]]; then
+		echo -e "${error_color}Error: No such directory: ${directory}${normal}"
+		usage
+		exit 2
+	fi
+fi
+
+# make directory absolute
+if [[ ${directory:0:1} != "/" ]]; then
+	if cd -- "$directory" &> /dev/null; then
+		directory=`pwd`
+	else
+		echo -e "${error_color}Error: Inaccessible directory: ${directory}${normal}"
+		exit 2
+	fi
+fi
+
+# do the things
+open -nga "Open in iTerm" --args $tabOrWindow -- "$directory"
