@@ -1,0 +1,32 @@
+Shown in front Finder window        Expected Result
+----------------------------------- ----------------------------------------------------------------
+an arbitrary folder                 open the folder
+Macintosh HD                        open /
+the computer's name under Devices   open /Volumes
+a shared network folder             open the network folder
+
+Trash                               open ~/.Trash
+folder in Trash                     open the folder under ~/.Trash or ~/Library/Mobile Documents
+iCloud Drive                        open ~/Library/Mobile Documents/com~apple~CloudDocs
+folder in iCloud Drive              open ~/Library/Mobile Documents/com~apple~CloudDocs/folder
+app's folder in iCloud Drive        open ~/Library/Mobile Documents/something
+app's subfolder in iCloud Drive     open ~/Library/Mobile Documents/something/folder
+Dropbox                             open ~/Dropbox
+folder in Dropbox                   open ~/Dropbox/folder
+
+Network                             prompt to cancel or open iTerm anyway
+AirDrop                             prompt to cancel or open iTerm anyway
+a device under Shared               prompt to cancel or open iTerm anyway
+All My Files                        prompt to cancel or open iTerm anyway
+All Tags...                         prompt to cancel or open iTerm anyway
+a tag                               prompt to cancel or open iTerm anyway
+a Spotlight search                  prompt to cancel or open iTerm anyway
+
+a file Info window is frontmost     ignore it, use frontmost normal Finder window
+a View Options window is frontmost  ignore it, use frontmost normal Finder window
+Finder's Preferences is frontmost   ignore it, use frontmost normal Finder window
+all Finder windows are minimized    open Terminal in folder of one of the windows
+no Finder window in this space      open Terminal in folder of window from another space
+no Finder window in any space       open Terminal without changing directory
+Finder is hidden                    open Terminal without changing directory (same as no windows)
+tabs in the front Finder window     open the visible tab's folder
