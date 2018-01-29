@@ -140,6 +140,8 @@ function getFinderFolder() {
 	}
 	catch (ex) {
 		if (type == "trash-object" || (type == "folder" && win.name() == "Trash")) {
+			// items shown by Finder in the Trash can come from various places (e.g. mounted drives, iCloud Drive),
+			// so we'll just take whatever macOS says is "the path to Trash" (always ~/.Trash as far as I can tell)
 			return app.pathTo("trash", { as: "alias", folderCreation: false }).toString()
 		}
 
