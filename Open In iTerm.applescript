@@ -153,7 +153,8 @@ function getFinderFolder() {
 //
 function getPathToCheckModifierKeys() {
 	var pathToMe = app.pathTo(this, { as: "alias" }).toString()
-
+	
+	if (pathToMe.endsWith(".app/")) pathToMe = pathToMe.slice(0, -1)
 	if (pathToMe.endsWith(".app")) {
 		return pathToMe + "/Contents/Resources/modifier-keys"
 	}
