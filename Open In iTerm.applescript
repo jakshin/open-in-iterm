@@ -103,11 +103,11 @@ function collectCommandLineParameters() {
 	// see https://github.com/JXA-Cookbook/JXA-Cookbook/wiki/Shell-and-CLI-Interactions
 	var argv = []
 	var args = $.NSProcessInfo.processInfo.arguments  // NSArray
-	
+
 	for (var i = 0; i < args.count; i++) {
 		argv.push(ObjC.unwrap(args.objectAtIndex(i)))
 	}
-	
+
 	return argv
 }
 
@@ -129,7 +129,7 @@ function getFinderFolder() {
 	if (!finder.finderWindows.length) return ""
 	var win = finder.finderWindows[0]
 	var type = win.target.class()
-	
+
 	try {
 		if (type == "computer-object") {
 			return "/Volumes"  // closest analogue for "this computer"
@@ -154,8 +154,9 @@ function getFinderFolder() {
 function getPathToCheckModifierKeys() {
 	var pathToMe = app.pathTo(this, { as: "alias" }).toString()
 	
-	if (pathToMe.endsWith(".app/")) {
-		return pathToMe + "Contents/Resources/modifier-keys"
+	if (pathToMe.endsWith(".app/")) pathToMe = pathToMe.slice(0, -1)
+	if (pathToMe.endsWith(".app")) {
+		return pathToMe + "/Contents/Resources/modifier-keys"
 	}
 
 	// assume we're running in Script Editor
@@ -175,16 +176,16 @@ function iTermIsRunning() {
 //
 function parseCommandLineParameters(argv, params) {
 	var endOfOptions = false
-	
+
 	for (var i = 1; i < argv.length; i++) {
 		var arg = argv[i].trim()
 		if (arg == "") continue
-		
+
 		if (arg == "--") {
 			endOfOptions = true
 			continue
 		}
-		
+
 		if (!endOfOptions && (arg == "-t" || arg == "--tab")) {
 			params.openTab = true
 		}
