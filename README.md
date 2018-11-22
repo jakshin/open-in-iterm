@@ -32,7 +32,7 @@ git clone https://github.com/jakshin/open-in-iterm.git
 Open the folder which contains `Open In iTerm.applescript`, and run the following command at a prompt:
 
 ```bash
-./build.sh
+./build.sh  # pass --dark if you want a dark icon for macOS Mojave's dark mode
 ```
 
 This will create `Open In iTerm.app`.
