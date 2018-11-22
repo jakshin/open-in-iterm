@@ -24,6 +24,32 @@ function absolute_path() {
 	fi
 }
 
+# --- Options ---
+
+function usage() {
+	script_name="`basename "$0"`"
+	echo 'Builds the "Open In iTerm" Finder-toolbar script as an application.'
+	echo 'See README.md for installation instructions.'
+	echo
+	echo -e "Usage: $script_name [options]\n"
+	echo "Options:"
+	echo "  --dark   Use a dark icon suitable for macOS Mojave's dark mode"
+	echo "  --light  Use a light icon for Mojave's light mode, and earlier macOS versions"
+	exit 1
+}
+
+icon="light.icns"
+
+for arg in "$@"; do
+	if [[ $arg == "--dark" ]]; then
+		icon="dark.icns"
+	elif [[ $arg == "--light" ]]; then
+		icon="light.icns"
+	else  # anything else, including -h/--help
+		usage
+	fi
+done
+
 # --- Build Logic ---
 
 # run from the path in which the build script resides
@@ -34,7 +60,7 @@ rm -rf "$bundle_name"
 osacompile -l JavaScript -o "$bundle_name" "$script_name"
 
 # copy resources into the bundle
-cp icon/app.icns "$bundle_name/Contents/Resources/applet.icns"
+cp "icon/$icon" "$bundle_name/Contents/Resources/applet.icns"
 cp modifier-keys/modifier-keys "$bundle_name/Contents/Resources"
 
 # fix up Info.plist
