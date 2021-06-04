@@ -1,5 +1,5 @@
 /*
- * Open In iTerm v1.0 (macOS Sierra, iTerm2 v3.x)
+ * Open In iTerm v1.1
  *
  * This is a Finder-toolbar script, which opens iTerm tabs/windows conveniently.
  * When its icon is clicked on in the toolbar of a Finder window, it opens a new iTerm tab,
@@ -7,7 +7,7 @@
  * to the Finder window's folder. See README.md for more details, including how to build
  * and install.
  *
- * Copyright (c) 2018 Jason Jackson
+ * Copyright (c) 2018, 2021 Jason Jackson
  *
  * This program is free software: you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation,
@@ -50,10 +50,17 @@ function run() {
 		}
 	}
 	catch (ex) {
-		var details = "Finder can display some things that look like folders, but for which there is no actual on-disk folder; "
-		details += "since there's no actual \"" + ex.message + "\" folder, it can't be opened in iTerm.\n"
-		var reply = displayAlert("Can't open folder in iTerm", details, [ "Cancel", "Open iTerm Anyway" ])
-		if (reply.buttonReturned == "Cancel") return
+		if (ex.noFolderFound) {
+			var details = "Finder can display some things that look like folders, but for which there is no actual on-disk folder; "
+			details += "since there's no actual \"" + ex.message + "\" folder, it can't be opened in iTerm.\n"
+
+			var reply = displayAlert("Can't open folder in iTerm", details, [ "Cancel", "Open iTerm Anyway" ])
+			if (reply.buttonReturned == "Cancel") return
+		}
+		else {
+			displayAlert("Can't open folder in iTerm", ex.toString())
+			return
+		}
 	}
 
 	// get iTerm into the desired state
@@ -72,11 +79,28 @@ function run() {
 
 	// send our shell script to iTerm's window
 	var shellScript = buildShellScript(params.folderPath)
-	if (shellScript) iTerm.currentWindow.currentSession.write({ text: shellScript })
+	if (shellScript) {
+		// loop until iTerm is ready, in case it's just starting up
+		for (var attempt = 0; attempt < 100; attempt++) {
+			try {
+				iTerm.currentWindow.currentSession.write({ text: shellScript })
+				break
+			}
+			catch (ex) {
+				// wait just a bit before trying again
+				delay(0.1)
+			}
+		}
 
-	// clear iTerm's scrollback buffer
-	delay(0.2)
-	Application("System Events").keystroke("K", { using: [ "command down", "shift down" ] })
+		// give up after 10 seconds
+		if (attempt >= 100) return
+
+		// no need to send a keystroke to clear the scrollback buffer here anymore;
+		// instead, we print an escape sequence that does so in our shell script,
+		// so we don't need special permissions associated with sending keystrokes
+		// delay(0.2)
+		// Application("System Events").keystroke("K", { using: [ "command down", "shift down" ] })
+	}
 }
 
 // ----- utility functions -----
@@ -93,7 +117,7 @@ function activateFrontWindow(appName) {
 //
 function buildShellScript(folder) {
 	if (folder == null || folder == "") return ""
-	return "cd " + quotedFormOf(folder) + " && clear"
+	return "cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
 }
 
 // Collects any command-line parameters passed to the application, returning them as an array;
@@ -141,11 +165,13 @@ function getFinderFolder() {
 	catch (ex) {
 		if (type == "trash-object" || (type == "folder" && win.name() == "Trash")) {
 			// items shown by Finder in the Trash can come from various places (e.g. mounted drives, iCloud Drive),
-			// so we'll just take whatever macOS says is "the path to Trash" (always ~/.Trash as far as I can tell)
+			// so we'll just use whatever macOS says is "the path to Trash" (always ~/.Trash as far as I can tell)
 			return app.pathTo("trash", { as: "alias", folderCreation: false }).toString()
 		}
 
-		throw new Error(win.name())
+		var err = new Error(win.name())
+		err.noFolderFound = true
+		throw err
 	}
 }
 

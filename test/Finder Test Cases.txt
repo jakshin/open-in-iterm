@@ -11,13 +11,15 @@ iCloud Drive                        open ~/Library/Mobile Documents/com~apple~Cl
 folder in iCloud Drive              open ~/Library/Mobile Documents/com~apple~CloudDocs/folder
 app's folder in iCloud Drive        open ~/Library/Mobile Documents/something
 app's subfolder in iCloud Drive     open ~/Library/Mobile Documents/something/folder
+Documents in iCloud Drive           open ~/Documents
+Desktop in iCloud Drive             open ~/Desktop
 Dropbox                             open ~/Dropbox
 folder in Dropbox                   open ~/Dropbox/folder
 
+Recents                             prompt to cancel or open iTerm anyway
 Network                             prompt to cancel or open iTerm anyway
 AirDrop                             prompt to cancel or open iTerm anyway
-a device under Shared               prompt to cancel or open iTerm anyway
-All My Files                        prompt to cancel or open iTerm anyway
+a device under Network              prompt to cancel or open iTerm anyway
 All Tags...                         prompt to cancel or open iTerm anyway
 a tag                               prompt to cancel or open iTerm anyway
 a Spotlight search                  prompt to cancel or open iTerm anyway
