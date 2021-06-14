@@ -1,5 +1,5 @@
 /*
- * Open In iTerm v1.1.1
+ * Open In iTerm v1.2
  *
  * This is a Finder-toolbar script, which opens iTerm tabs/windows conveniently.
  * When its icon is clicked on in the toolbar of a Finder window, it opens a new iTerm tab,
@@ -42,6 +42,11 @@ function run() {
 
 	if (params.openTab == undefined) {
 		params.openTab = shouldOpenTabThisTime()
+		
+		if (params.openTab === null) {
+			// the option key is down, and the Finder window will close, so we should do nothing
+			return
+		}
 	}
 
 	try {
@@ -237,5 +242,11 @@ function quotedFormOf(str) {
 function shouldOpenTabThisTime() {
 	var pathToCheckModifierKeys = getPathToCheckModifierKeys()
 	var modifierKeys = app.doShellScript(quotedFormOf(pathToCheckModifierKeys))
-	return modifierKeys.indexOf("fn") == -1  // open a tab unless the fn key is down
+	
+	if (modifierKeys.indexOf("option") != -1) {
+		return null  // request early exit
+	}
+
+	// open a tab unless the fn or shift key is down
+	return (modifierKeys.indexOf("fn") == -1 && modifierKeys.indexOf("shift") == -1)
 }
