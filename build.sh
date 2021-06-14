@@ -77,6 +77,10 @@ if [[ -z $version || -z $copyright ]]; then
 	exit 1
 fi
 
+while [[ ${copyright:0:1} == " " || ${copyright:0:1} == "*" ]]; do
+	copyright="${copyright:1}"
+done
+
 # remove any existing version of the app bundle, and create a new one
 rm -rf "$bundle_name"
 osacompile -l JavaScript -o "$bundle_name" "$script_name"
