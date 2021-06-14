@@ -1,5 +1,5 @@
 /*
- * Open In iTerm v1.1
+ * Open In iTerm v1.1.1
  *
  * This is a Finder-toolbar script, which opens iTerm tabs/windows conveniently.
  * When its icon is clicked on in the toolbar of a Finder window, it opens a new iTerm tab,
@@ -117,7 +117,7 @@ function activateFrontWindow(appName) {
 //
 function buildShellScript(folder) {
 	if (folder == null || folder == "") return ""
-	return "cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
+	return " cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
 }
 
 // Collects any command-line parameters passed to the application, returning them as an array;
