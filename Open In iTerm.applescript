@@ -1,5 +1,5 @@
 /*
- * Open In iTerm v1.2
+ * Open In iTerm v1.3
  *
  * This is a Finder-toolbar script, which opens iTerm tabs/windows conveniently.
  * When its icon is clicked on in the toolbar of a Finder window, it opens a new iTerm tab,
@@ -68,62 +68,40 @@ function run() {
 		}
 	}
 
-	// get iTerm into the desired state
-	if (!iTermIsRunning()) {
-		iTerm.activate()  // opens a new window as iTerm starts up
-	}
-	else if (!iTerm.windows.length || !params.openTab) {
-		iTerm.createWindowWithDefaultProfile()  // brings all iTerm windows to the front, sadly
-	}
-	else {
-		// open a new tab in an existing iTerm window
-		activateFrontWindow("iTerm")   // bring just one iTerm window to the front
-		var win = iTerm.currentWindow  // will be unminimized if needed
-		win.createTabWithDefaultProfile()
+	// if we want to open a new window, and iTerm is already running with open windows, 
+	// "open -a" doesn't do what we want (it always opens a new tab in an existing window),
+	// so we use iTerm's scripting API instead; it brings all iTerm windows to the front,
+	// sadly, but I see no workaround
+	if (!params.openTab && iTermIsRunning() && iTerm.windows.length) {
+		iTerm.createWindowWithDefaultProfile()
+		sendShellScript(iTerm, params.folderPath)
+		return
 	}
 
-	// send our shell script to iTerm's window
-	var shellScript = buildShellScript(params.folderPath)
-	if (shellScript) {
-		// loop until iTerm is ready, in case it's just starting up
-		for (var attempt = 0; attempt < 100; attempt++) {
-			try {
-				iTerm.currentWindow.currentSession.write({ text: shellScript })
-				break
-			}
-			catch (ex) {
-				// wait just a bit before trying again
-				delay(0.1)
-			}
+	// we also must use iTerm's scripting API if the path contains backslashes; otherwise,
+	// the shell's working directory does not get changed, due to an apparent iTerm bug (v3.4.8)
+	if (params.folderPath.indexOf('\\') != -1) {
+		if (!iTermIsRunning()) {
+			iTerm.activate()  // opens a new window as iTerm starts up
+		}
+		else if (!iTerm.windows.length || !params.openTab) {
+			iTerm.createWindowWithDefaultProfile()  // brings all iTerm windows to the front, sadly
+		}
+		else {
+			// open a new tab in an existing iTerm window
+			app.doShellScript("open -a iTerm")  // bring just one iTerm window to front, unminimized if needed
+			iTerm.currentWindow.createTabWithDefaultProfile()
 		}
 
-		// give up after 10 seconds
-		if (attempt >= 100) return
-
-		// no need to send a keystroke to clear the scrollback buffer here anymore;
-		// instead, we print an escape sequence that does so in our shell script,
-		// so we don't need special permissions associated with sending keystrokes
-		// delay(0.2)
-		// Application("System Events").keystroke("K", { using: [ "command down", "shift down" ] })
+		sendShellScript(iTerm, params.folderPath)
+		return
 	}
+
+	// otherwise we don't need to script iTerm directly at all, "open -a" does what we need
+	app.doShellScript("open -a iTerm " + quotedFormOf(params.folderPath))
 }
 
 // ----- utility functions -----
-
-// "Activates" just the frontmost window of an application, so that it becomes the active application,
-// and its frontmost window is the front window on the screen, but its other windows remain in the background.
-//
-function activateFrontWindow(appName) {
-	app.doShellScript("open -a " + quotedFormOf(appName))
-}
-
-// Builds a shell script which will change the working directory to the passed folder, then clear the screen.
-// Returns an empty string if no folder is passed.
-//
-function buildShellScript(folder) {
-	if (folder == null || folder == "") return ""
-	return " cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
-}
 
 // Collects any command-line parameters passed to the application, returning them as an array;
 // giving run() an 'argv' parameter doesn't seem to work, for whatever reason (on macOS Sierra 10.12.6).
@@ -234,6 +212,25 @@ function parseCommandLineParameters(argv, params) {
 //
 function quotedFormOf(str) {
 	return "'" + str.replace(/'/g, "'\\''") + "'"
+}
+
+// Sends a change-directory shell script to the current iTerm window.
+//
+function sendShellScript(iTerm, folder) {
+	if (folder == null || folder == "") return
+	var shellScript = " cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
+	
+	// loop for up to ~10s waiting for iTerm to be ready, in case it's just starting up
+	for (var attempt = 0; attempt < 100; attempt++) {
+		try {
+			iTerm.currentWindow.currentSession.write({ text: shellScript })
+			break
+		}
+		catch (ex) {
+			// wait just a bit before trying again
+			delay(0.1)
+		}
+	}
 }
 
 // Detects whether the fn modifier key is down, and decides whether we should open a new iTerm tab this time
