@@ -1,0 +1,87 @@
+iTerm state                                            Expected Result (use tabs = on, default)
+------------------------------------------------------ ----------------------------------------------------------------
+iTerm not running                                      launch iTerm, open a window, bring it to the front
+
+no iTerm windows                                       open a window, bring it to the front
+only preferences window                                open a window, bring only it to the front (1)
+one shell window                                       open a new tab, bring the window to the front
+two shell windows                                      open a new tab, bring only its window to the front
+
+only preferences window, hidden                        unhide, open a window, bring only it to the front (1)
+one shell window, hidden                               unhide, open a new tab, bring the window to the front
+two shell windows, hidden                              unhide, open a new tab, bring only its window to the front (1)
+
+only preferences window, minimized                     open a window, bring it to the front
+one shell window, minimized                            restore, open a new tab, bring the window to the front
+two shell windows, minimized                           restore one, open a new tab, bring the window to the front
+two shell windows, one minimized                       open a tab in the regular window, bring it to the front
+
+only preferences window, minimized & hidden            unhide, open a window, bring it to the front
+one shell window, minimized & hidden                   unhide & restore, open a new tab, bring to the front
+two shell windows, minimized & hidden                  unhide, restore one, open a new tab, bring to the front
+
+one shell window, full screen                          open a new tab in the existing window, bring to front (2)
+two shell windows, full screen                         open a new tab in the most recently used window, bring to front (2)
+two shell windows, one full screen                     open a new tab in this space's window, bring it to the front
+two shell windows, one full screen, one in other space open a new tab in the most recently used window, bring to front (2)
+
+only preferences window, in another space              open a window in this space, bring only it to the front
+one shell window, in another space                     open a new tab in the existing window, bring to front (2)
+two shell windows, one in another space                open a new tab in this space's window, bring it to the front
+
+only preferences window, in another space, hidden      unhide, open a window in this space, bring only it to the front (3)
+one shell window, in another space, hidden             unhide, open a new tab in the existing window, bring to front (2)
+two shell windows, one in another space, both hidden   unhide, open a new tab in this space's window, bring it to the front
+
+only preferences window, in another space, minimized   open a window in this space, bring it to the front
+one shell window, in another space, minimized          restore, open a new tab, bring the window to the front (2)
+two shell windows, in another space, one minimized     open a tab in the regular window, bring it to the front (2)
+
+
+iTerm state                                            Expected Result (use tabs = off, fn key down)
+------------------------------------------------------ ----------------------------------------------------------------
+iTerm not running                                      launch iTerm, open a window, bring it to the front
+
+no iTerm windows                                       open a window, bring it to the front
+only preferences window                                open a window, bring only it to the front (1)
+one shell window                                       open a window, bring only it to the front (1)
+two shell windows                                      open a window, bring only it to the front (1)
+
+only preferences window, hidden                        unhide, open a window, bring only it to the front (1)
+one shell window, hidden                               unhide, open a window, bring only it to the front (1)
+two shell windows, hidden                              unhide, open a window, bring only it to the front (1)
+
+only preferences window, minimized                     open a window, bring it to the front
+one shell window, minimized                            open a window, bring it to the front
+two shell windows, minimized                           open a window, bring it to the front
+two shell windows, one minimized                       open a window, bring only it to the front (1)
+
+only preferences window, minimized & hidden            unhide, open a window, bring it to the front
+one shell window, minimized & hidden                   unhide, open a window, bring it to the front
+two shell windows, minimized & hidden                  unhide, open a window, bring it to the front
+
+one shell window, full screen                          open a window, bring it to the front
+two shell windows, full screen                         open a window, bring it to the front
+two shell windows, one full screen                     open a window, bring only it to the front (1)
+two shell windows, one full screen, one in other space open a window in this space, bring it to the front
+
+only preferences window, in another space              open a window in this space, bring only it to the front
+one shell window, in another space                     open a window in this space, bring it to the front
+two shell windows, one in another space                open a window in this space, bring it to the front
+
+only preferences window, in another space, hidden      unhide, open a window in this space, bring only it to the front (3)
+one shell window, in another space, hidden             unhide, open a window in this space, bring it to the front
+two shell windows, one in another space, both hidden   unhide, open a window in this space, bring only it to the front (1)
+
+only preferences window, in another space, minimized   open a window in this space, bring it to the front
+one shell window, in another space, minimized          open a window in this space, bring it to the front
+two shell windows, in another space, one minimized     open a window in this space, bring only it to the front
+
+
+on Big Sur & iTerm 3.4.8:
+
+(1) brings all iTerm windows to the front, actually
+
+(2) opens a new iTerm window in the current space if the most recently used iTerm window was closed
+
+(3) moves the preferences window to the current space and brings it to the front, actually 
