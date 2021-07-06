@@ -24,13 +24,13 @@ cd open-in-iterm
 
 This will create `Open In iTerm.app`.
 
-### Step 3: Drag the application into your Finder toolbar
+### Step 2: Drag the application into your Finder toolbar
 
 Hold the **command** key down and drag `Open In iTerm.app` into your Finder toolbar:
 
 ![[screenshot]](Hold%20command%20and%20drag.png)
 
-### Step 4: Install the wrapper script (optional)
+### Step 3: Install the wrapper script (optional)
 
 Copy or symlink the `iterm` wrapper script to a directory that's in your shell's path, or add the directory it's in to your path. For example, to create a symlink in `/usr/local/bin`, run this from the directory containing the script:
 
