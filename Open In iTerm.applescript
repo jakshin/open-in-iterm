@@ -1,5 +1,5 @@
 /*
- * Open In iTerm v1.3
+ * Open In iTerm v1.3.1
  *
  * This is a Finder-toolbar script, which opens iTerm tabs/windows conveniently.
  * When its icon is clicked on in the toolbar of a Finder window, it opens a new iTerm tab,
@@ -79,10 +79,12 @@ function run() {
 	}
 
 	// we also must use iTerm's scripting API if the path contains backslashes; otherwise,
-	// the shell's working directory does not get changed, due to an apparent iTerm bug (v3.4.8)
+	// the shell's working directory does not get changed, due to an apparent iTerm bug
+	// (noticed in iTerm v3.4.8, still true in v3.4.23)
 	if (params.folderPath.indexOf('\\') != -1) {
 		if (!iTermIsRunning()) {
 			iTerm.activate()  // opens a new window as iTerm starts up
+			delay(1.0)        // give iTerm a little time to start up
 		}
 		else if (!iTerm.windows.length || !params.openTab) {
 			iTerm.createWindowWithDefaultProfile()  // brings all iTerm windows to the front, sadly
@@ -219,16 +221,16 @@ function quotedFormOf(str) {
 function sendShellScript(iTerm, folder) {
 	if (folder == null || folder == "") return
 	var shellScript = " cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
-	
+
 	// loop for up to ~10s waiting for iTerm to be ready, in case it's just starting up
 	for (var attempt = 0; attempt < 100; attempt++) {
 		try {
+			delay(0.3)
 			iTerm.currentWindow.currentSession.write({ text: shellScript })
 			break
 		}
 		catch (ex) {
-			// wait just a bit before trying again
-			delay(0.1)
+			// wait a bit and try again
 		}
 	}
 }
