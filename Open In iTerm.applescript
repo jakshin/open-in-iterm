@@ -1,5 +1,5 @@
 /*
- * Open In iTerm v1.3.1
+ * Open In iTerm v1.3.2
  *
  * This is a Finder-toolbar script, which opens iTerm tabs/windows conveniently.
  * When its icon is clicked on in the toolbar of a Finder window, it opens a new iTerm tab,
@@ -61,6 +61,11 @@ function run() {
 
 			var reply = displayAlert("Can't open folder in iTerm", details, [ "Cancel", "Open iTerm Anyway" ])
 			if (reply.buttonReturned == "Cancel") return
+			params.folderPath = ""
+		}
+		else if (ex.automationPermissionProblem) {
+			displayAlert(ex.toString(), ex.details)
+			return
 		}
 		else {
 			displayAlert("Can't open folder in iTerm", ex.toString())
@@ -68,34 +73,43 @@ function run() {
 		}
 	}
 
-	// if we want to open a new window, and iTerm is already running with open windows, 
-	// "open -a" doesn't do what we want (it always opens a new tab in an existing window),
-	// so we use iTerm's scripting API instead; it brings all iTerm windows to the front,
-	// sadly, but I see no workaround
-	if (!params.openTab && iTermIsRunning() && iTerm.windows.length) {
-		iTerm.createWindowWithDefaultProfile()
-		sendShellScript(iTerm, params.folderPath)
-		return
+	try {
+		// if we want to open a new window, and iTerm is already running with open windows, 
+		// "open -a" doesn't do what we want (it always opens a new tab in an existing window),
+		// so we use iTerm's scripting API instead; it brings all iTerm windows to the front,
+		// sadly, but I see no workaround
+		if (!params.openTab && iTermIsRunning() && iTermHasOpenWindows(iTerm)) {
+			iTerm.createWindowWithDefaultProfile()
+			sendShellScript(iTerm, params.folderPath)
+			return
+		}
+
+		// we also must use iTerm's scripting API if the path contains backslashes; otherwise,
+		// the shell's working directory does not get changed, due to an apparent iTerm bug
+		// (noticed in iTerm v3.4.8, still true in v3.4.23)
+		if (params.folderPath.indexOf('\\') != -1) {
+			if (!iTermIsRunning()) {
+				iTerm.activate()  // opens a new window as iTerm starts up
+				delay(1.0)        // give iTerm a little time to start up
+			}
+			else if (!iTermHasOpenWindows(iTerm) || !params.openTab) {
+				iTerm.createWindowWithDefaultProfile()  // brings all iTerm windows to the front, sadly
+			}
+			else {
+				// open a new tab in an existing iTerm window
+				app.doShellScript("open -a iTerm")  // bring just one iTerm window to front, unminimized if needed
+				iTerm.currentWindow.createTabWithDefaultProfile()
+			}
+
+			sendShellScript(iTerm, params.folderPath)
+			return
+		}
 	}
-
-	// we also must use iTerm's scripting API if the path contains backslashes; otherwise,
-	// the shell's working directory does not get changed, due to an apparent iTerm bug
-	// (noticed in iTerm v3.4.8, still true in v3.4.23)
-	if (params.folderPath.indexOf('\\') != -1) {
-		if (!iTermIsRunning()) {
-			iTerm.activate()  // opens a new window as iTerm starts up
-			delay(1.0)        // give iTerm a little time to start up
-		}
-		else if (!iTerm.windows.length || !params.openTab) {
-			iTerm.createWindowWithDefaultProfile()  // brings all iTerm windows to the front, sadly
-		}
-		else {
-			// open a new tab in an existing iTerm window
-			app.doShellScript("open -a iTerm")  // bring just one iTerm window to front, unminimized if needed
-			iTerm.currentWindow.createTabWithDefaultProfile()
-		}
-
-		sendShellScript(iTerm, params.folderPath)
+	catch(ex) {
+		if (ex.automationPermissionProblem)
+			displayAlert(ex.toString(), ex.details)
+		else
+			displayAlert("Can't open folder in iTerm", ex.toString())
 		return
 	}
 
@@ -120,6 +134,27 @@ function collectCommandLineParameters() {
 	return argv
 }
 
+// Creates an Error object that represents a problem with access settings
+// in System Settings > Privacy & Security > Automation.
+//
+function createAutomationPermissionError(summary, appName) {
+	var err = new Error(summary)
+	var details = "This can happen when Open In iTerm lacks access to control " + appName + "."
+
+	if (systemVersion() >= 13) {
+		details += " To check that, open System Settings > Privacy & Security > Automation," +
+			" and ensure all the toggle switches for Open In iTerm are turned on."
+	}
+	else {
+		details += " To check that, open System Preferences > Security & Privacy > Privacy > Automation," +
+			" and ensure all the checkboxes for Open In iTerm are checked."
+	}
+
+	err.details = details
+	err.automationPermissionProblem = true
+	return err
+}
+
 // Displays an alert dialog.
 // The 'buttons' parameter is optional, and defaults to one OK button.
 //
@@ -133,11 +168,19 @@ function displayAlert(title, details, buttons) {
 // throws an exception if the frontmost Finder window isn't displaying an actual on-disk folder.
 //
 function getFinderFolder() {
-	var finder = Application("Finder")
+	var finder, win, type
 
-	if (!finder.finderWindows.length) return ""
-	var win = finder.finderWindows[0]
-	var type = win.target.class()
+	try {
+		finder = Application("Finder")
+		if (!finder.finderWindows.length) return ""
+		win = finder.finderWindows[0]
+		type = win.target.class()
+	}
+	catch (ex) {
+		// I've only ever seen the code above throw an error due to a permissions issue,
+		// with an unhelpful error message that "Error: An error occurred"
+		throw createAutomationPermissionError("Unable to examine the front Finder window", "Finder")
+	}
 
 	try {
 		if (type == "computer-object") {
@@ -175,11 +218,34 @@ function getPathToCheckModifierKeys() {
 	return pathToMe.substring(0, lastSlash) + "/modifier-keys/modifier-keys"
 }
 
+// Determines whether or not iTerm has open windows.
+// It'll start iTerm if it's not already running, so probably only call this after iTermIsRunning().
+//
+function iTermHasOpenWindows(iTerm) {
+	try {
+		return iTerm.windows.length > 0
+	}
+	catch (ex) {
+		// the code above throws an error if Open In iTerm doesn't have access to control iTerm;
+		// unfortunately the error is very generic ("Error: An error occurred"),
+		// but I'm not aware of any other circumstances that make it throw, so just assume
+		throw createAutomationPermissionError("Unable to call iTerm's AppleScript API", "iTerm")
+	}
+}
+
 // Determines whether or not the iTerm application is already running.
 //
 function iTermIsRunning() {
-	var iTermProcesses = Application("System Events").processes.whose({ name: { _equals: "iTerm2" }})
-	return iTermProcesses.length > 0
+	try {
+		var iTermProcesses = Application("System Events").processes.whose({ name: { _equals: "iTerm2" }})
+		return iTermProcesses.length > 0
+	}
+	catch (ex) {
+		// the code above throws an error if Open In iTerm doesn't have access to control System Events;
+		// unfortunately the error is very generic ("Error: An error occurred"),
+		// but I'm not aware of any other circumstances that make it throw, so just assume
+		throw createAutomationPermissionError("Unable to determine whether iTerm is running", "System Events")
+	}
 }
 
 // Parses command-line parameters into the given 'params' object (setting 'openTab' and/or 'folderPath'),
@@ -222,15 +288,24 @@ function sendShellScript(iTerm, folder) {
 	if (folder == null || folder == "") return
 	var shellScript = " cd " + quotedFormOf(folder) + " && clear && printf '\\e[3J'"
 
-	// loop for up to ~10s waiting for iTerm to be ready, in case it's just starting up
-	for (var attempt = 0; attempt < 100; attempt++) {
-		try {
-			delay(0.3)
-			iTerm.currentWindow.currentSession.write({ text: shellScript })
-			break
+	// delay to let the iTerm window/tab we just opened become ready; if we don't do this,
+	// we can get an "Error: Can't get object" error, or the shell script we send can just get displayed
+	// in the iTerm window/tab above the first shell prompt, without actually getting executed,
+	// or sometimes the shell script doesn't even get displayed but also doesn't execute;
+	// in those latter two cases, retrying has no effect
+	delay(0.5)
+
+	try {
+		iTerm.currentWindow.currentSession.write({ text: shellScript })
+	}
+	catch (ex) {
+		if (ex && ex.message && ex.message.indexOf("An error occurred") != -1) {
+			throw createAutomationPermissionError("Unable to call iTerm's AppleScript API", "iTerm")
 		}
-		catch (ex) {
-			// wait a bit and try again
+		else {
+			// if this is "Error: Can't get object", that means iTerm wasn't done starting up
+			// by the time we sent the shell script to it
+			throw ex
 		}
 	}
 }
@@ -248,4 +323,25 @@ function shouldOpenTabThisTime() {
 
 	// open a tab unless the fn or shift key is down
 	return (modifierKeys.indexOf("fn") == -1 && modifierKeys.indexOf("shift") == -1)
+}
+
+// Returns the macOS major version number, or 9999 on failure.
+//
+function systemVersion() {
+	var version = app.systemInfo().systemVersion
+
+	if (version) {
+		var parts = String(version).split(".")
+
+		if (parts && parts.length) {
+			var major = Number(parts[0])
+
+			if (!isNaN(major) && major > 0) {
+				return major
+			}
+		}
+	}
+
+	// assume the latest possible macOS version if we fail to get the true version
+	return 9999
 }
