@@ -7,7 +7,7 @@ bundle_name="$app_name.app"
 bundle_id="com.apple.ScriptEditor.id.${app_name// }"
 
 function usage() {
-	script_name="`basename "$0"`"
+	script_name="$(basename "$0")"
 	echo "Builds the \"$app_name\" Finder toolbar script as an application."
 	echo 'See README.md for installation instructions.'
 	echo
@@ -31,8 +31,15 @@ for arg; do
 done
 
 if [[ -z $appearance ]]; then
-	dark="$(osascript -e 'tell application "System Events" to tell appearance preferences to log dark mode is true' 2>&1)"
-	[[ $dark == true ]] && appearance="dark" || appearance="light"
+	if dark="$(osascript -e 'tell application "System Events" to tell appearance preferences to log dark mode is true' 2>&1)"; then
+		[[ $dark == true ]] && appearance="dark" || appearance="light"
+	else
+		echo "Could not detect whether dark mode is enabled, due to this error:"
+		echo " ${dark//*execution error:/}"
+		echo -e "\nThe application will be built with an icon for light mode, by default."
+		echo -e "Pass the --light or --dark option to select an icon manually.\n"
+		appearance="light"
+	fi
 fi
 
 os_version="$(sw_vers -productVersion)"
@@ -40,7 +47,7 @@ os_version="${os_version/.*/}"  # Major version only
 
 icon="macOS-$os_version-$appearance"
 
-if [[ ! -f "icon/$icon.icns" ]] && (( $os_version > 11 )); then
+if [[ ! -f "icon/$icon.icns" ]] && (( os_version > 11 )); then
 	icon="macOS-11-$appearance"
 fi
 
