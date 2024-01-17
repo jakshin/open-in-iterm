@@ -14,23 +14,36 @@ A small wrapper script named `iterm` is also provided, which invokes the app to 
 
 ## Installation
 
-### Step 1: Clone and build
+### Step 1: Get the code and build the app
 
-```bash
-git clone https://github.com/jakshin/open-in-iterm.git
-cd open-in-iterm
-./build.sh
-```
+Either clone the repo, or download it and extract the zip file.   
+Then run `build.sh`, which will create `Open In iTerm.app`.
 
-This will create `Open In iTerm.app`.
+The build script tries to detect whether you have macOS's dark mode enabled, to decide which icon to build the app with, so you may see a popup asking to grant Terminal access to control System Events. If you say no (or if you've previously declined to grant Terminal this access), the build script will use the light-mode icon by default. You can pass the `--dark` or `--light` option to the build script to manually select an icon, avoiding the need for the script to try to detect dark mode.
 
-### Step 2: Drag the application into your Finder toolbar
+<div align="center">
+	<img width=342 alt="Screenshot of popup" src="screenshots/terminal-control-system-events.png">
+</div>
 
-Hold the **command** key down and drag `Open In iTerm.app` into your Finder toolbar:
+### Step 2: Allow automation access
 
-![[screenshot]](Hold%20command%20and%20drag.png)
+Launch the app for the first time, while holding the **fn** or **shift** key down. You'll see a series of popups asking to grant it access to control Finder, System Events, and iTerm. You'll need to allow each, or Open In iTerm won't be able to do its thing:
 
-### Step 3: Install the wrapper script (optional)
+ <div align-"center">
+ 	<img width=256 alt="Screenshot of popup" src="screenshots/control-finder.png">
+ 	<img width=256 alt="Screenshot of popup" src="screenshots/control-system-events.png">
+ 	<img width=256 alt="Screenshot of popup" src="screenshots/control-iterm.png">
+ </div>
+
+If you accidentally don't allow access to any of these apps, you can fix it in **System Settings**, on the **Privacy & Security > Automation** screen:   
+![[Screenshot of Automation settings]](screenshots/automation-settings.png)
+
+### Step 3: Drag the application into your Finder toolbar
+
+Hold the **command** key down and drag `Open In iTerm.app` into your Finder toolbar:   
+![[Screenshot of holding Command and dragging]](screenshots/hold-command-and-drag.png)
+
+### Step 4: Install the wrapper script (optional)
 
 Copy or symlink the `iterm` wrapper script to a directory that's in your shell's path, or add the directory it's in to your path. For example, to create a symlink in `/usr/local/bin`, run this from the directory containing the script:
 
