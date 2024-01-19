@@ -18,13 +18,15 @@ function usage() {
 	exit 1
 }
 
-unset appearance
+unset appearance style
 
 for arg; do
 	if [[ $arg == "--dark" ]]; then
 		appearance="dark"
 	elif [[ $arg == "--light" ]]; then
 		appearance="light"
+	elif [[ $arg == "--old" ]]; then
+		style="old"
 	else  # anything else, including -h/--help
 		usage
 	fi
@@ -44,6 +46,10 @@ fi
 
 os_version="$(sw_vers -productVersion)"
 os_version="${os_version/.*/}"  # Major version only
+
+if (( os_version >= 11 )) && [[ $style != "old" ]]; then
+	appearance="new-$appearance"
+fi
 
 icon="macOS-$os_version-$appearance"
 
