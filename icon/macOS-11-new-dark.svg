@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" version="1.1">
+ <desc>Created by copying from open-in-terminal, which is from SF Symbols terminal thin</desc>
+ <g class="layer">
+  <title>Layer 1</title>
+  <g id="Thin-L" transform="matrix(5.4588 0 0 5.48044 3098.02 7476.25)">
+   <path d="m-530.62,-1215.66l112.64,0c10.89,0 16.61,-5.91 16.61,-16.6l0,-77.74c0,-10.74 -5.72,-16.6 -16.61,-16.6l-112.64,0c-10.89,0 -16.6,5.71 -16.6,16.6l0,77.74c0,10.88 5.71,16.6 16.6,16.6zm0.15,-3.96c-8.4,0 -12.85,-4.39 -12.85,-12.84l0,-77.34c0,-8.5 4.45,-12.89 12.85,-12.89l112.35,0c8.15,0 12.84,4.39 12.84,12.89l0,77.34c0,8.45 -4.69,12.84 -12.84,12.84l-112.35,0zm7.86,-61.57" fill="#d4d4d4" id="svg_1"/>
+  </g>
+  <text fill="#d4d4d4" font-family="Monospace" font-size="24" id="svg_2" stroke="#000000" stroke-width="0" text-anchor="middle" transform="matrix(16.4477 0 0 12.8104 -3719.51 -3894.24)" x="245.02" xml:space="preserve" y="345.66">$</text>
+  <text fill="#bfbfbf" font-family="Monospace" font-size="24" id="svg_3" stroke="#000000" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-opacity="null" stroke-width="0" text-anchor="middle" transform="matrix(8.53622 0 0 9.13513 -2641.01 -2928.1)" x="367.38" xml:space="preserve" y="375.81">█</text>
+ </g>
+</svg>
