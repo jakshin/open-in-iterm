@@ -12,10 +12,10 @@ If you prefer Apple's Terminal app, see [Open in Terminal](https://github.com/ja
 Either clone the repo, or download it and extract the zip file.   
 Then run `build.sh`, which will create `Open In iTerm.app`.
 
-The build script tries to detect whether you have macOS's dark mode enabled, to decide which icon to build the app with, so you may see a popup asking to grant Terminal access to control System Events. If you say no (or if you've previously declined to grant Terminal this access), the build script will use the light-mode icon by default. You can pass the `--dark` or `--light` option to the build script to manually select an icon, avoiding the need for the script to try to detect dark mode.
+The build script tries to detect whether you have macOS's dark mode enabled, to decide which icon to build the app with, so you may see a popup asking to grant iTerm access to control System Events. If you say no (or if you've previously declined to grant iTerm this access), the build script will use the light-mode icon by default. You can pass the `--dark` or `--light` option to the build script to manually select an icon, avoiding the need for the script to try to detect dark mode.
 
 <div align="center">
-	<img width=228 alt="Screenshot of popup" src="screenshots/terminal-control-system-events.png">
+	<img width=228 alt="Screenshot of popup" src="screenshots/iterm-control-system-events.png">
 </div>
 
 ### Step 2: Allow automation access
