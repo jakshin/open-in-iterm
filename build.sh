@@ -96,6 +96,7 @@ echo "Compiled $script_name -> $bundle_name"
 # copy resources into the bundle
 cp "icon/$icon.icns" "$bundle_name/Contents/Resources/applet.icns"
 cp modifier-keys/modifier-keys "$bundle_name/Contents/Resources"
+xattr -c "$bundle_name/Contents/Resources/applet.icns" "$bundle_name/Contents/Resources"
 
 # fix up Info.plist
 info_plist="$(absolute_path "$bundle_name/Contents/Info.plist")"
