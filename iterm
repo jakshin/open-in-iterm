@@ -10,7 +10,7 @@
 #
 
 function usage() {
-	script_name=`basename "$0"`
+	script_name="$(basename "$0")"
 	with_header="$1"
 
 	if [[ $with_header == true ]]; then
@@ -28,13 +28,21 @@ function usage() {
 }
 
 # output styles
-header_color='\033[1;36m'
-error_color='\033[0;31m'
-bold='\033[1m'
-normal='\033[0m'
+if [[ -z $NO_COLOR ]]; then
+	header_color='\033[0;1;36m'
+	error_color='\033[0;1;31m'
+	bold='\033[1m'
+	normal='\033[0m'
+else
+	header_color=''
+	error_color=''
+	bold=''
+	normal=''
+fi
 
 # parse arguments
-unset end_opts directory tabOrWindow
+unset end_opts directory
+tab_or_window=()
 
 for arg; do
 	if [[ $end_opts == true || $arg != -* ]]; then
@@ -52,9 +60,9 @@ for arg; do
 		usage true
 		exit 0
 	elif [[ $arg == "-t" || $arg == "--tab" ]]; then
-		tabOrWindow="$arg"
+		tab_or_window=("$arg")
 	elif [[ $arg == "-w" || $arg == "--window" ]]; then
-		tabOrWindow="$arg"
+		tab_or_window=("$arg")
 	else
 		echo -e "${error_color}Error: Invalid option: ${arg}${normal}"
 		usage
@@ -64,7 +72,7 @@ done
 
 if [[ -z $directory ]]; then
 	# default to the current directory
-	directory=`pwd`
+	directory="$(pwd)"
 else
 	if [[ ! -d $directory ]]; then
 		echo -e "${error_color}Error: No such directory: ${directory}${normal}"
@@ -76,7 +84,7 @@ fi
 # make directory absolute
 if [[ ${directory:0:1} != "/" ]]; then
 	if cd -- "$directory" &> /dev/null; then
-		directory=`pwd`
+		directory="$(pwd)"
 	else
 		echo -e "${error_color}Error: Inaccessible directory: ${directory}${normal}"
 		exit 2
@@ -84,4 +92,4 @@ if [[ ${directory:0:1} != "/" ]]; then
 fi
 
 # do the things
-open -nga "Open in iTerm" --args $tabOrWindow -- "$directory"
+open -nga "Open in iTerm" --args "${tab_or_window[@]}" -- "$directory"
